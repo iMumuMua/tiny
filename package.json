@@ -1,0 +1,23 @@
+{
+  "name": "tiny",
+  "description": "Graceful async flow control",
+  "version": "0.0.1",
+  "author": "iMumuMua <imumu@foxmail.com>",
+  "keywords": [
+    "tiny",
+    "async",
+    "flow"
+  ],
+  "repository": "iMumuMua/tiny",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "~2.2.1",
+    "should": "~5.2.0"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec --bail --check-leaks test/"
+  }
+}
