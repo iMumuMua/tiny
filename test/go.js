@@ -75,4 +75,31 @@ describe('go', function () {
       .run();
   });
 
+  it('nested test', function (done) {
+    var ti = new Tiny();
+    var subti = new Tiny();
+    var testData = [];
+
+    subti.go(helper.singleAsyncFunc, function () {
+        testData.push('subti');
+      });
+    ti.go(helper.singleAsyncFunc, function () {
+        testData.push('ti one');
+      })
+      .go(helper.singleAsyncFunc, function () {
+        return subti;
+      })
+      .go(helper.singleAsyncFunc, function () {
+        testData.push('ti two');
+      })
+      .go(function () {
+        testData[0].should.equal('ti one');
+        testData[1].should.equal('subti');
+        testData[2].should.equal('ti two');
+        done();
+      })
+      .run();
+
+  });
+
 });
