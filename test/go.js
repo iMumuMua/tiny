@@ -142,7 +142,7 @@ describe('go', function () {
         subti.onError(function (err) {
           err.message.should.equal('subti');
           done();
-        })
+        });
         return subti;
       });
       ti.onError(function (err) {
