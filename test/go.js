@@ -92,13 +92,12 @@ describe('go', function () {
       .go(helper.singleAsyncFunc, function () {
         testData.push('ti two');
       })
-      .go(function () {
+      .run(function () {
         testData[0].should.equal('ti one');
         testData[1].should.equal('subti');
         testData[2].should.equal('ti two');
         done();
-      })
-      .run();
+      });
 
   });
 

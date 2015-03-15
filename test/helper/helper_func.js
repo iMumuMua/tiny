@@ -20,6 +20,12 @@ exports.asyncFunc = function (arg, callback) {
   });
 };
 
+exports.asyncTimerFunc = function (millisecond, callback) {
+  setTimeout(function () {
+    callback(null);
+  }, millisecond);
+};
+
 exports.asyncMultiArgsFunc = function (arg1, arg2, arg3, callback) {
   setTimeout(function () {
     callback(null, arg1, arg2, arg3);
