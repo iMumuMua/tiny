@@ -20,6 +20,12 @@ exports.asyncFunc = function (arg, callback) {
   });
 };
 
+exports.asyncMultiArgsFunc = function (arg1, arg2, arg3, callback) {
+  setTimeout(function () {
+    callback(null, arg1, arg2, arg3);
+  });
+};
+
 exports.asyncFailFunc = function (arg, callback) {
   setTimeout(function () {
     callback(new Error());

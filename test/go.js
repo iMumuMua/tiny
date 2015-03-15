@@ -30,6 +30,17 @@ describe('go', function () {
       .run();
   });
 
+  it('async multi args test', function (done) {
+    var ti = new Tiny();
+    ti.go(helper.asyncMultiArgsFunc, 'g1', 'g2', 'g3', function (g1, g2, g3) {
+        g1.should.equal('g1');
+        g2.should.equal('g2');
+        g3.should.equal('g3');
+        done();
+      })
+      .run();
+  });
+
   it('promise test', function (done) {
     var ti = new Tiny();
     ti.go(helper.createPromise('pr'), function (data) {
