@@ -77,16 +77,16 @@ describe('go', function () {
 
   it('nested test', function (done) {
     var ti = new Tiny();
-    var subti = new Tiny();
     var testData = [];
 
-    subti.go(helper.singleAsyncFunc, function () {
-        testData.push('subti');
-      });
     ti.go(helper.singleAsyncFunc, function () {
         testData.push('ti one');
       })
       .go(helper.singleAsyncFunc, function () {
+        var subti = new Tiny();
+        subti.go(helper.singleAsyncFunc, function () {
+            testData.push('subti');
+          });
         return subti;
       })
       .go(helper.singleAsyncFunc, function () {
