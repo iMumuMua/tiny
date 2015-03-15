@@ -101,4 +101,55 @@ describe('go', function () {
 
   });
 
+  it('error test', function (done) {
+    var ti = new Tiny();
+    ti.go(function () {
+        throw new Error('aa');
+      })
+      .onError(function (err) {
+        err.message.should.equal('aa');
+        done();
+      })
+      .run(function () {
+        should(true).be.false;
+      });
+  });
+
+  describe('nested error test', function () {
+    it('should use root error handler if sub tiny error handler is default', function (done) {
+      var ti = new Tiny();
+      ti.go(function () {
+        var subti = new Tiny();
+        subti.go(function () {
+          throw new Error('subti');
+        });
+        return subti;
+      });
+      ti.onError(function (err) {
+        err.message.should.equal('subti');
+        done();
+      });
+      ti.run();
+    });
+
+    it('should use sub error handler if sub tiny error handler is inited', function (done) {
+      var ti = new Tiny();
+      ti.go(function () {
+        var subti = new Tiny();
+        subti.go(function () {
+          throw new Error('subti');
+        });
+        subti.onError(function (err) {
+          err.message.should.equal('subti');
+          done();
+        })
+        return subti;
+      });
+      ti.onError(function (err) {
+        should(true).be.false;
+      });
+      ti.run();
+    });
+  });
+
 });
