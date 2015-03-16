@@ -44,6 +44,13 @@ ti.go(promise, function (data) {
   // do something
 });
 
+ti.go(promise, function () {
+  return false; // stop all tasks below by return false
+});
+ti.go(function () {
+  // this task will not be run
+});
+
 // all error or exception will be handled here
 ti.onError(function (err) {
   // handle err

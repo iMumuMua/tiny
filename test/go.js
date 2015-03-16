@@ -75,6 +75,23 @@ describe('go', function () {
       .run();
   });
 
+  it('break test', function (done) {
+    var ti = new Tiny();
+    var steps = [false, false];
+    ti.go(helper.singleAsyncFunc, function () {
+      steps[0] = true;
+      return false;
+    });
+    ti.go(helper.singleAsyncFunc, function () {
+      steps[1] = true;
+    });
+    ti.run(function () {
+      steps[0].should.be.true;
+      steps[1].should.be.false;
+      done();
+    });
+  });
+
   it('nested test', function (done) {
     var ti = new Tiny();
     var testData = [];
