@@ -6,7 +6,7 @@ Tiny makes asynchronous JavaScript be graceful and easy.
 
 ## Quick Start
 ```javascript
-var Tiny = require('tiny');
+var Tiny = require('tiny-control');
 var ti = new Tiny();
 ti.go(function () {
   // do something
