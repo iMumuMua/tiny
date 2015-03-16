@@ -1,5 +1,5 @@
 {
-  "name": "tiny",
+  "name": "tiny-control",
   "description": "Graceful async flow control",
   "main": "lib/tiny.js",
   "version": "0.0.1",
