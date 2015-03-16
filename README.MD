@@ -1,4 +1,7 @@
 # Tiny
+
+[![Build Status](https://travis-ci.org/iMumuMua/tiny.svg)](https://travis-ci.org/iMumuMua/tiny)
+
 Tiny makes asynchronous JavaScript be graceful and easy.
 
 ## Quick Start
