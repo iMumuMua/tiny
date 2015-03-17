@@ -118,19 +118,79 @@ describe('go', function () {
 
   });
 
-  it('error test', function (done) {
-    var ti = new Tiny();
-    ti.go(function () {
-        throw new Error('aa');
-      })
-      .onError(function (err) {
-        err.message.should.equal('aa');
-        done();
-      })
-      .run(function () {
-        should(true).be.false;
-      });
+  describe('error test', function () {
+    it('single func', function (done) {
+      var ti = new Tiny();
+      ti.go(function () {
+          throw new Error('aa');
+        })
+        .onError(function (err) {
+          err.message.should.equal('aa');
+          done();
+        })
+        .run(function () {
+          should(true).be.false;
+        });
+    });
+
+    it('single async', function (done) {
+      var ti = new Tiny();
+      ti.go(helper.singleAsyncFunc, function () {
+          throw new Error('aa');
+        })
+        .onError(function (err) {
+          err.message.should.equal('aa');
+          done();
+        })
+        .run(function () {
+          should(true).be.false;
+        });
+    });
+
+    it('multi args async', function (done) {
+      var ti = new Tiny();
+      ti.go(helper.asyncMultiArgsFunc, 1, 2, 3, function () {
+          throw new Error('aa');
+        })
+        .onError(function (err) {
+          err.message.should.equal('aa');
+          done();
+        })
+        .run(function () {
+          should(true).be.false;
+        });
+    });
+
+    it('promise fail', function (done) {
+      var ti = new Tiny();
+      ti.go(helper.createPromise('pr', true), function () {
+          throw new Error('aa');
+        })
+        .onError(function (err) {
+          err.message.should.equal('promise error');
+          done();
+        })
+        .run(function () {
+          should(true).be.false;
+        });
+    });
+
+    it('promise throw', function (done) {
+      var ti = new Tiny();
+      ti.go(helper.createPromise('pr'), function () {
+          throw new Error('aa');
+        })
+        .onError(function (err) {
+          err.message.should.equal('aa');
+          done();
+        })
+        .run(function () {
+          should(true).be.false;
+        });
+    });
+
   });
+
 
   describe('nested error test', function () {
     it('should use root error handler if sub tiny error handler is default', function (done) {

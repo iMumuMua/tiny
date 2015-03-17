@@ -13,7 +13,8 @@
   "license": "MIT",
   "devDependencies": {
     "mocha": "~2.2.1",
-    "should": "~5.2.0"
+    "should": "~5.2.0",
+    "q": "~1.2.0"
   },
   "engines": {
     "node": ">= 0.10.0"
