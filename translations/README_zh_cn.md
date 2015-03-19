@@ -70,6 +70,32 @@ ti.run(function () {
 });
 ```
 
+## While-do or do-while
+Tiny让带异步回调的循环变得简单:
+```javascript
+var ti = new Tiny();
+var i = 0;
+ti.while(function () { return i < 2; });
+ti.do(function () {
+  i++;
+}); // 像上述的'go'方法一样定义任务
+ti.run(function () {
+  i.should.equal(2);
+});
+```
+如果先调用do再调用while方法，则行为会类似于do-while循环。
+```javascript
+var ti = new Tiny();
+var i = 0;
+ti.do(function () {
+  i++; // 这个函数至少会执行一次
+});
+ti.while(function () { return i < 2; });
+ti.run(function () {
+  i.should.equal(2);
+});
+```
+
 ## 链式风格
 可以像这样链式调用方法：
 ```javascript

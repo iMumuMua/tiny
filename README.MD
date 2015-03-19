@@ -74,6 +74,32 @@ ti.run(function () {
 });
 ```
 
+## While-do or do-while
+Tiny make async loop control simple:
+```javascript
+var ti = new Tiny();
+var i = 0;
+ti.while(function () { return i < 2; });
+ti.do(function () {
+  i++;
+}); // do method accepts args the same to 'go'
+ti.run(function () {
+  i.should.equal(2);
+});
+```
+If call do first, it will run as do-while:
+```javascript
+var ti = new Tiny();
+var i = 0;
+ti.do(function () {
+  i++; // this function will run at least once.
+});
+ti.while(function () { return i < 2; });
+ti.run(function () {
+  i.should.equal(2);
+});
+```
+
 ## Chain style
 You could do this:
 ```javascript
