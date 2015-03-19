@@ -80,7 +80,7 @@ Tiny make async loop control simple:
 var ti = new Tiny();
 var i = 0;
 ti.while(function () { return i < 2; });
-ti.do(function () {
+ti.do(fs.readdir, './path', function (files) {
   i++;
 }); // do method accepts args the same to 'go'
 ti.run(function () {
@@ -91,7 +91,7 @@ If call do first, it will run as do-while:
 ```javascript
 var ti = new Tiny();
 var i = 0;
-ti.do(function () {
+ti.do(fs.readdir, './path', function (files) {
   i++; // this function will run at least once.
 });
 ti.while(function () { return i < 2; });

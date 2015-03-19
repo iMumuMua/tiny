@@ -76,7 +76,7 @@ Tiny让带异步回调的循环变得简单:
 var ti = new Tiny();
 var i = 0;
 ti.while(function () { return i < 2; });
-ti.do(function () {
+ti.do(fs.readdir, './path', function (files) {
   i++;
 }); // 像上述的'go'方法一样定义任务
 ti.run(function () {
@@ -87,7 +87,7 @@ ti.run(function () {
 ```javascript
 var ti = new Tiny();
 var i = 0;
-ti.do(function () {
+ti.do(fs.readdir, './path', function (files) {
   i++; // 这个函数至少会执行一次
 });
 ti.while(function () { return i < 2; });
