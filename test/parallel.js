@@ -1,12 +1,12 @@
-var Tiny = require('../lib/tiny.js');
+var tiny = require('../lib/tiny.js');
 var helper = require('./helper/helper_func.js');
 
 describe('parallel', function () {
 
   it('single test', function () {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var testData = {};
-    ti.parallel(function () {
+    ctrl.parallel(function () {
         testData.stepOne = 'one';
       })
       .parallel(function () {
@@ -18,9 +18,9 @@ describe('parallel', function () {
   });
 
   it('async timer test', function (done) {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var testData = [];
-    ti.parallel(helper.asyncTimerFunc, 30, function () {
+    ctrl.parallel(helper.asyncTimerFunc, 30, function () {
         testData.push('first');
       })
       .parallel(helper.asyncTimerFunc, 15, function () {
@@ -34,9 +34,9 @@ describe('parallel', function () {
   });
 
   it('promise test', function (done) {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var testData = {};
-    ti.parallel(helper.createPromise('pr'), function (data) {
+    ctrl.parallel(helper.createPromise('pr'), function (data) {
         data.should.equal('pr');
         testData.pr = data;
       })
@@ -52,35 +52,35 @@ describe('parallel', function () {
   });
 
   it('nested test', function (done) {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var nestedData = {};
-    ti.parallel(function () {
-        var subti = new Tiny();
-        subti.parallel(function () {
+    ctrl.parallel(function () {
+        var ctrl = new tiny.Controller();
+        ctrl.parallel(function () {
           nestedData.single = true;
         });
-        return subti;
+        return ctrl;
       })
       .parallel(helper.singleAsyncFunc, function () {
-        var subti = new Tiny();
-        subti.parallel(function () {
+        var ctrl = new tiny.Controller();
+        ctrl.parallel(function () {
           nestedData.singleAsyncFunc = true;
         });
-        return subti;
+        return ctrl;
       })
       .parallel(helper.asyncFunc, 'async', function (data) {
-        var subti = new Tiny();
-        subti.parallel(function () {
+        var ctrl = new tiny.Controller();
+        ctrl.parallel(function () {
           nestedData.asyncFunc = true;
         });
-        return subti;
+        return ctrl;
       })
       .parallel(helper.createPromise('pr'), function (data) {
-        var subti = new Tiny();
-        subti.parallel(function () {
+        var ctrl = new tiny.Controller();
+        ctrl.parallel(function () {
           nestedData.promise = true;
         });
-        return subti;
+        return ctrl;
       })
       .run(function () {
         for (var key in nestedData) {
@@ -92,8 +92,8 @@ describe('parallel', function () {
 
   describe('error test', function () {
     it('single func', function (done) {
-      var ti = new Tiny();
-      ti.parallel(function () {
+      var ctrl = new tiny.Controller();
+      ctrl.parallel(function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -106,8 +106,8 @@ describe('parallel', function () {
     });
 
     it('single async', function (done) {
-      var ti = new Tiny();
-      ti.parallel(helper.singleAsyncFunc, function () {
+      var ctrl = new tiny.Controller();
+      ctrl.parallel(helper.singleAsyncFunc, function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -120,8 +120,8 @@ describe('parallel', function () {
     });
 
     it('multi args async', function (done) {
-      var ti = new Tiny();
-      ti.parallel(helper.asyncMultiArgsFunc, 1, 2, 3, function () {
+      var ctrl = new tiny.Controller();
+      ctrl.parallel(helper.asyncMultiArgsFunc, 1, 2, 3, function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -134,8 +134,8 @@ describe('parallel', function () {
     });
 
     it('promise fail', function (done) {
-      var ti = new Tiny();
-      ti.parallel(helper.createPromise('pr', true), function () {
+      var ctrl = new tiny.Controller();
+      ctrl.parallel(helper.createPromise('pr', true), function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -148,8 +148,8 @@ describe('parallel', function () {
     });
 
     it('promise throw', function (done) {
-      var ti = new Tiny();
-      ti.parallel(helper.createPromise('pr'), function () {
+      var ctrl = new tiny.Controller();
+      ctrl.parallel(helper.createPromise('pr'), function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -167,9 +167,9 @@ describe('parallel', function () {
 
   describe('nested error test', function () {
     it('should use root error handler if sub tiny error handler is default', function (done) {
-      var ti = new Tiny();
+      var ti = new tiny.Controller();
       ti.parallel(function () {
-        var subti = new Tiny();
+        var subti = new tiny.Controller();
         subti.parallel(function () {
           throw new Error('subti');
         });
@@ -183,9 +183,9 @@ describe('parallel', function () {
     });
 
     it('should use sub error handler if sub tiny error handler is inited', function (done) {
-      var ti = new Tiny();
+      var ti = new tiny.Controller();
       ti.parallel(function () {
-        var subti = new Tiny();
+        var subti = new tiny.Controller();
         subti.parallel(function () {
           throw new Error('subti');
         });

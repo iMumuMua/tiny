@@ -1,74 +1,74 @@
-var Tiny = require('../lib/tiny.js');
+var tiny = require('../lib/tiny.js');
 var helper = require('./helper/helper_func.js');
 
 describe('while', function () {
 
   describe('while-do', function () {
     it('simple', function (done) {
-      var ti = new Tiny();
+      var ctrl = new tiny.Controller();
       var i = 0;
       var condOnce = false;
-      ti.while(function () {
+      ctrl.while(function () {
         if (!condOnce) {
           i.should.equal(0);
           condOnce = true;
         }
         return i < 2;
       });
-      ti.do(function () {
+      ctrl.do(function () {
         i++;
       });
-      ti.run(function () {
+      ctrl.run(function () {
         i.should.equal(2);
         done();
       });
     });
 
     it('async do', function (done) {
-      var ti = new Tiny();
+      var ctrl = new tiny.Controller();
       var i = 0;
-      ti.while(function () { return i < 2; });
-      ti.do(helper.singleAsyncFunc, function () {
+      ctrl.while(function () { return i < 2; });
+      ctrl.do(helper.singleAsyncFunc, function () {
         i++;
       });
-      ti.run(function () {
+      ctrl.run(function () {
         i.should.equal(2);
         done();
       });
     });
 
     it('throw error', function (done) {
-      var ti = new Tiny();
+      var ctrl = new tiny.Controller();
       var i = 0;
-      ti.while(function () { return i < 2; });
-      ti.do(helper.singleAsyncFunc, function () {
+      ctrl.while(function () { return i < 2; });
+      ctrl.do(helper.singleAsyncFunc, function () {
         throw new Error('while err');
       });
-      ti.onError(function (err) {
+      ctrl.onError(function (err) {
         err.message.should.equal('while err');
         done();
       });
-      ti.run(function () {
+      ctrl.run(function () {
         (true).should.be.false;
       });
     });
 
     it('child error', function (done) {
-      var ti = new Tiny();
+      var ctrl = new tiny.Controller();
       var i = 0;
-      ti.while(function () { return i < 2; });
-      ti.do(helper.singleAsyncFunc, function () {
-        var subti = new Tiny();
-        subti.go(function () {
+      ctrl.while(function () { return i < 2; });
+      ctrl.do(helper.singleAsyncFunc, function () {
+        var ctrl = new tiny.Controller();
+        ctrl.go(function () {
           throw new Error('while err');
         });
-        return subti;
+        return ctrl;
       });
-      ti.onError(function (err) {
+      ctrl.onError(function (err) {
         err.message.should.equal('while err');
         done();
       });
-      ti.run(function () {
+      ctrl.run(function () {
         (true).should.be.false;
       });
     });
@@ -77,20 +77,20 @@ describe('while', function () {
 
   describe('do-while', function () {
     it('simple', function (done) {
-      var ti = new Tiny();
+      var ctrl = new tiny.Controller();
       var i = 0;
       var condOnce = false;
-      ti.do(function () {
+      ctrl.do(function () {
         i++;
       });
-      ti.while(function () {
+      ctrl.while(function () {
         if (!condOnce) {
           i.should.equal(1);
           condOnce = true;
         }
         return i < 2;
       });
-      ti.run(function () {
+      ctrl.run(function () {
         i.should.equal(2);
         done();
       });

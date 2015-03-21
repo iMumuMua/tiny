@@ -1,12 +1,12 @@
-var Tiny = require('../lib/tiny.js');
+var tiny = require('../lib/tiny.js');
 var helper = require('./helper/helper_func.js');
 
 describe('go', function () {
 
   it('single test', function () {
     var testVal;
-    var ti = new Tiny();
-    ti.go(function () {
+    var ctrl = new tiny.Controller();
+    ctrl.go(function () {
         testVal = 'gua gua';
       })
       .run();
@@ -14,16 +14,16 @@ describe('go', function () {
   });
 
   it('single async test', function (done) {
-    var ti = new Tiny();
-    ti.go(helper.singleAsyncFunc, function () {
+    var ctrl = new tiny.Controller();
+    ctrl.go(helper.singleAsyncFunc, function () {
         done();
       })
       .run();
   });
 
   it('async test', function (done) {
-    var ti = new Tiny();
-    ti.go(helper.asyncFunc, 'gua', function (data) {
+    var ctrl = new tiny.Controller();
+    ctrl.go(helper.asyncFunc, 'gua', function (data) {
         data.should.equal('gua');
         done();
       })
@@ -31,8 +31,8 @@ describe('go', function () {
   });
 
   it('async multi args test', function (done) {
-    var ti = new Tiny();
-    ti.go(helper.asyncMultiArgsFunc, 'g1', 'g2', 'g3', function (g1, g2, g3) {
+    var ctrl = new tiny.Controller();
+    ctrl.go(helper.asyncMultiArgsFunc, 'g1', 'g2', 'g3', function (g1, g2, g3) {
         g1.should.equal('g1');
         g2.should.equal('g2');
         g3.should.equal('g3');
@@ -42,7 +42,7 @@ describe('go', function () {
   });
 
   it('promise test', function (done) {
-    var ti = new Tiny();
+    var ti = new tiny.Controller();
     ti.go(helper.createPromise('pr'), function (data) {
         data.should.equal('pr');
         done();
@@ -51,9 +51,9 @@ describe('go', function () {
   });
 
   it('flow test', function (done) {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var testData = [];
-    ti.go(function () {
+    ctrl.go(function () {
         testData.push('zero');
       })
       .go(helper.singleAsyncFunc, function () {
@@ -76,16 +76,16 @@ describe('go', function () {
   });
 
   it('break test', function (done) {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var steps = [false, false];
-    ti.go(helper.singleAsyncFunc, function () {
+    ctrl.go(helper.singleAsyncFunc, function () {
       steps[0] = true;
       return false;
     });
-    ti.go(helper.singleAsyncFunc, function () {
+    ctrl.go(helper.singleAsyncFunc, function () {
       steps[1] = true;
     });
-    ti.run(function () {
+    ctrl.run(function () {
       steps[0].should.be.true;
       steps[1].should.be.false;
       done();
@@ -93,18 +93,18 @@ describe('go', function () {
   });
 
   it('nested test', function (done) {
-    var ti = new Tiny();
+    var ctrl = new tiny.Controller();
     var testData = [];
 
-    ti.go(helper.singleAsyncFunc, function () {
+    ctrl.go(helper.singleAsyncFunc, function () {
         testData.push('ti one');
       })
       .go(helper.singleAsyncFunc, function () {
-        var subti = new Tiny();
-        subti.go(helper.singleAsyncFunc, function () {
+        var ctrl = new tiny.Controller();
+        ctrl.go(helper.singleAsyncFunc, function () {
             testData.push('subti');
           });
-        return subti;
+        return ctrl;
       })
       .go(helper.singleAsyncFunc, function () {
         testData.push('ti two');
@@ -120,8 +120,8 @@ describe('go', function () {
 
   describe('error test', function () {
     it('single func', function (done) {
-      var ti = new Tiny();
-      ti.go(function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -134,8 +134,8 @@ describe('go', function () {
     });
 
     it('single async', function (done) {
-      var ti = new Tiny();
-      ti.go(helper.singleAsyncFunc, function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(helper.singleAsyncFunc, function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -148,8 +148,8 @@ describe('go', function () {
     });
 
     it('multi args async', function (done) {
-      var ti = new Tiny();
-      ti.go(helper.asyncMultiArgsFunc, 1, 2, 3, function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(helper.asyncMultiArgsFunc, 1, 2, 3, function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -162,8 +162,8 @@ describe('go', function () {
     });
 
     it('promise fail', function (done) {
-      var ti = new Tiny();
-      ti.go(helper.createPromise('pr', true), function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(helper.createPromise('pr', true), function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -176,8 +176,8 @@ describe('go', function () {
     });
 
     it('promise throw', function (done) {
-      var ti = new Tiny();
-      ti.go(helper.createPromise('pr'), function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(helper.createPromise('pr'), function () {
           throw new Error('aa');
         })
         .onError(function (err) {
@@ -194,38 +194,38 @@ describe('go', function () {
 
   describe('nested error test', function () {
     it('should use root error handler if sub tiny error handler is default', function (done) {
-      var ti = new Tiny();
-      ti.go(function () {
-        var subti = new Tiny();
-        subti.go(function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(function () {
+        var ctrl = new tiny.Controller();
+        ctrl.go(function () {
           throw new Error('subti');
         });
-        return subti;
+        return ctrl;
       });
-      ti.onError(function (err) {
+      ctrl.onError(function (err) {
         err.message.should.equal('subti');
         done();
       });
-      ti.run();
+      ctrl.run();
     });
 
     it('should use sub error handler if sub tiny error handler is inited', function (done) {
-      var ti = new Tiny();
-      ti.go(function () {
-        var subti = new Tiny();
-        subti.go(function () {
+      var ctrl = new tiny.Controller();
+      ctrl.go(function () {
+        var ctrl = new tiny.Controller();
+        ctrl.go(function () {
           throw new Error('subti');
         });
-        subti.onError(function (err) {
+        ctrl.onError(function (err) {
           err.message.should.equal('subti');
           done();
         });
-        return subti;
+        return ctrl;
       });
-      ti.onError(function (err) {
+      ctrl.onError(function (err) {
         should(true).be.false;
       });
-      ti.run();
+      ctrl.run();
     });
   });
 
