@@ -1,48 +1,36 @@
 var tiny = require('../lib/tiny.js');
 var helper = require('./helper/helper_func.js');
 
-describe('finish', function () {
+describe('finish', function() {
 
-  it('base finish test', function (done) {
+  it('base finish test', function(done) {
     var ctrl = new tiny.Controller();
     var count = 0;
-    ctrl.go(helper.singleAsyncFunc, function () {
-      var ctrl = new tiny.Controller();
-      ctrl.go(helper.singleAsyncFunc, function () {
+    ctrl.nick = 'hi'
+    ctrl.go(helper.singleAsyncFunc, function() {
+      var subCtrl = new tiny.Controller();
+      subCtrl.nick = 'he'
+      subCtrl.go(helper.singleAsyncFunc, function() {
         count++;
       });
-      ctrl.finish(function (callback) {
+      subCtrl.onFinish(function() {
         count++;
-        callback();
       });
-      return ctrl;
+      return subCtrl;
     });
-    ctrl.run(function () {
+    ctrl.run(function() {
       count.should.equal(2);
       done();
     });
   });
 
-  it('throw err in finish callback function', function (done) {
+  it.skip('throw err in finish callback function', function(done) {
     var ctrl = new tiny.Controller();
-    ctrl.go(function () {});
-    ctrl.finish(function (callback) {
+    ctrl.go(function() {});
+    ctrl.onFinish(function() {
       throw new Error('finish err');
     });
-    ctrl.onError(function (err) {
-      err.message.should.equal('finish err');
-      done();
-    });
-    ctrl.run();
-  });
-
-  it('callback err in finish callback function', function (done) {
-    var ctrl = new tiny.Controller();
-    ctrl.go(function () {});
-    ctrl.finish(function (callback) {
-      callback(new Error('finish err'));
-    });
-    ctrl.onError(function (err) {
+    ctrl.onError(function(err) {
       err.message.should.equal('finish err');
       done();
     });

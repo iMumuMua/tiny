@@ -80,7 +80,7 @@ describe('go', function () {
     var steps = [false, false];
     ctrl.go(helper.singleAsyncFunc, function () {
       steps[0] = true;
-      return false;
+      return tiny.break;
     });
     ctrl.go(helper.singleAsyncFunc, function () {
       steps[1] = true;
