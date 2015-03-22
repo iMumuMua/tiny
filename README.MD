@@ -1,173 +1,191 @@
-# Tiny
+# tiny
 
 [![Build Status](https://travis-ci.org/iMumuMua/tiny.svg)](https://travis-ci.org/iMumuMua/tiny)
 
-Tiny makes asynchronous JavaScript be graceful and easy.
+tiny makes asynchronous JavaScript be graceful and easy.
 
 Language Translations:
 * [简体中文 (zh_CN)](translations/README_zh_cn.md)
 
 ## Quick Start
 ```javascript
-var Tiny = require('tiny-control');
-var ti = new Tiny();
-ti.go(function () {
+var tiny = require('tiny-control');
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
   // do something
 });
-ti.go(fs.readdir, './path', function (files) {
+ctrl.go(fs.readdir, './path', function(files) {
   // do something
 });
-ti.go(promise, function (data) {
+ctrl.go(promise, function(data) {
   // do something
 });
-ti.onError(function (err) {
+ctrl.onError(function(err) {
   // handle err
 });
-ti.run(); // ti will run these tasks one by one, is that graceful?
+ctrl.run(); // these go atom tasks will be run one by one
 ```
 
-## Flow control
-Tiny makes async flow be simple.
+## Atom task
+Most of tiny.Controller method accept the same arguments to make an atom task, such as 'go', 'parallel', 'do', 'onFinish'.
+The atom task looks like:
 ```javascript
-var ti = new Tiny();
+var ctrl = new tiny.Controller();
 
-// a single function, define custom task here
-ti.go(function () {
+// a single function task
+ctrl.go(function() {
+  // do something here
+});
+
+// a async function task, such as node.js api functions
+ctrl.go(fs.readdir, path, function(files) {
   // do something
 });
 
-// nodejs functions and similar
-ti.go(fs.readdir, './path', function (files) {
+// a promise task, the callback will accept promise success data
+ctrl.go(promise, function(data) {
   // do something
 });
+```
+It will be used 'atomArgs' instead of arguments of atom task below, such as `ctrl.go(atomArgs)`.
 
-// promise
-ti.go(promise, function (data) {
-  // do something
-});
+## Sequence
+tiny makes async sequence be simple.
+```javascript
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs);
+ctrl.go(atomArgs);
+ctrl.run(); // these go atom tasks will be run one by one
+```
 
-ti.go(promise, function (data) {
-  return false; // stop all tasks below by return false
+Break
+```javascript
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs);
+ctrl.go(function() {
+  return tiny.break;
 });
-ti.go(function () {
-  // this task will not be run
-});
-
-// all error or exception will be handled here
-ti.onError(function (err) {
-  // handle err
-});
-
-ti.run(function () {
-  // finish callback
-}); // don't forget run()
+ctrl.go(atomArgs); // this task will not run
+ctrl.run();
 ```
 
 ## Parallel tasks
-Tiny also support parallel tasks.
+tiny also support parallel tasks.
 ```javascript
-var ti = new Tiny();
-ti.parallel(/*just define task the same to 'go'*/);
-ti.parallel(/*...*/);
-ti.run(function () {
-  // do something when all parallel task finish
-});
+var ctrl = new tiny.Controller();
+ctrl.parallel(atomArgs);
+ctrl.parallel(atomArgs);
+ctrl.onFinish(atomArgs); // run this task when all parallel tasks have finished
+ctrl.run(); // these parallel atom tasks will be run parallelly if they are async tasks
 ```
 
 ## While-do or do-while
-Tiny make async loop control simple:
+tiny make async loop control be simple.
 ```javascript
-var ti = new Tiny();
+var ctrl = new tiny.Controller();
 var i = 0;
-ti.while(function () { return i < 2; });
-ti.do(fs.readdir, './path', function (files) {
+ctrl.while(function() { return i < 2; });
+ctrl.do(fs.readdir, './path', function(files) {
   i++;
-}); // do method accepts args the same to 'go'
-ti.run(function () {
+}); // ctrl.do(atomArgs), the method 'do' can be called only once.
+ctrl.onFinish(function() {
   i.should.equal(2);
 });
+ctrl.run();
 ```
-If call do first, it will run as do-while:
+If the method 'do' will be called first, the controller will run as do-while:
 ```javascript
-var ti = new Tiny();
+var ctrl = new tiny.Controller();
 var i = 0;
-ti.do(fs.readdir, './path', function (files) {
-  i++; // this function will run at least once.
+ctrl.do(fs.readdir, './path', function(files) {
+  i++; // this task will run at least once.
 });
-ti.while(function () { return i < 2; });
-ti.run(function () {
+ctrl.while(function() { return i < 2; });
+ctrl.onFinish(function() {
   i.should.equal(2);
 });
+ctrl.run();
 ```
 
 ## Chain style
 You could do this:
 ```javascript
-var ti = new Tiny();
-ti.go(/*...*/).go(/*...*/).go(/*...*/).onError(/*...*/).run(/*...*/);
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs).go(atomArgs).go(atomArgs).onError(function(err) {}).onFinish(atomArgs).run();
 ```
 
-## Nested task
-Tiny could be nested!
+## Nested controller
+tiny.Controller could be nested! You could return a tiny.Controller in a atom task function.
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
-  var subti = new Tiny();
-  subti.go(function () {
-    // do something
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
+  console.log(1);
+});
+ctrl.go(function() {
+  console.log(2);
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(atomArgs);
+  subCtrl.go(atomArgs);
+  subCtrl.go(function() {
+    console.log(3);
   });
-  subti.go(/*...*/)
-  return subti; // don't use run method here, just return
-})
-ti.go(/*...*/);
-ti.go(/*...*/);
-ti.run();
+  return subCtrl; // don't call method 'run' here, just return
+});
+ctrl.go(function() {
+  console.log(4);
+});
+ctrl.go(atomArgs);
+ctrl.run(); // console.log output: 1, 2, 3, 4
 ```
 
 ## Error handle
-All error and exception will be handled in one function, is that cool?
-In Tiny task callback function, all exception will be caught.
+You could handle all error in one place. The tiny.Controller will catch all exception that throw by atom task.
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
   throw new Error('aa');
 });
-ti.onError(function (err) {
+ctrl.onError(function(err) {
   // err.message will be 'aa'
 });
-ti.run();
+ctrl.run();
 ```
 
-When in nested task, sub Tiny task's error will also be handled in parent Tiny error handler.
+The parent controller can catch exception that throw by it's children.
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
-  var subti = new Tiny();
-  subti.go(function () {
-    throw new Error('subti');
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(function() {
+    throw new Error('child error');
   });
-  return subti;
+  return subCtrl;
 });
-ti.onError(function (err) {
-  // err.message should be 'subti'
+ctrl.onError(function(err) {
+  // err.message should be 'child error'
 });
-ti.run();
+ctrl.run();
 ```
-If the sub Tiny has it's own error handler:
+If the child controller has called method 'onError':
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
-  var subti = new Tiny();
-  subti.go(function () {
-    throw new Error('subti');
+var ctrl = new tiny.Controller();
+ctrl.go(function () {
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(function () {
+    throw new Error('child error');
   });
-  subti.onError(function (err) {
-    // err.message should be 'subti'
+  subCtrl.onError(function (err) {
+    // err.message should be 'child error'
   });
-  return subti;
+  return subCtrl;
 });
-ti.onError(function (err) {
-  // could not catch error 'subti' here
+ctrl.onError(function (err) {
+  // could not catch error 'child error' here
 });
-ti.run();
+ctrl.run();
 ```
+
+## Feature
+Next version will add two methods for array:
+* forEach
+* map

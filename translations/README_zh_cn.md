@@ -1,168 +1,185 @@
 # Tiny
 
-Tiny让js的异步流程控制变得简单、优雅。
+Tiny让Javascript的异步流程控制变得简单优雅。
 
 ## 快速开始
 ```javascript
-var Tiny = require('tiny-control');
-var ti = new Tiny();
-ti.go(function () {
+var tiny = require('tiny-control');
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
   // do something
 });
-ti.go(fs.readdir, './path', function (files) {
+ctrl.go(fs.readdir, './path', function(files) {
   // do something
 });
-ti.go(promise, function (data) {
+ctrl.go(promise, function(data) {
   // do something
 });
-ti.onError(function (err) {
+ctrl.onError(function(err) {
   // handle err
 });
-ti.run(); // ti.go()中的回调函数将会依次执行
+ctrl.run(); // 上述的任务会被依次执行
 ```
 
-## 顺序控制
-Tiny让顺序的包含异步回调过程的任务变得非常简单。
+## 原子任务
+tiny.Controller的许多方法都接受相同形式的参数以创建一个原子任务，例如'go'、'parallel'、'do'、'onFinish'等方法。原子任务的形式如下：
 ```javascript
-var ti = new Tiny();
+var ctrl = new tiny.Controller();
 
-// 一个简单的任务
-ti.go(function () {
+// 一个简单的任务，接受一个回调函数
+ctrl.go(function() {
+  // do something here
+});
+
+// 一个调用异步函数的任务，例如node.js的api函数
+ctrl.go(fs.readdir, path, function(files) {
   // do something
 });
 
-// nodejs中的api函数或类似的形式
-// 即回调函数的形式为function (err[, args1[, args2...]]) {}
-ti.go(fs.readdir, './path', function (files) {
+// 一个promise任务，回调函数的参数即为promise成功状态的参数
+ctrl.go(promise, function(data) {
   // do something
 });
+```
+在下面的描述中，将使用'atomArgs'代替原子任务的参数，例如`ctrl.go(atomArgs)`。
 
-// promise
-ti.go(promise, function (data) {
-  // do something
-});
+## 顺序任务
+tiny让顺序的任务变得简单。
+```javascript
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs);
+ctrl.go(atomArgs);
+ctrl.run(); // 上述的任务会被依次执行
+```
 
-ti.go(promise, function (data) {
-  return false; // 如果return false，接下来的任务不会执行
+中断
+```javascript
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs);
+ctrl.go(function() {
+  return tiny.break;
 });
-ti.go(function () {
-  // 这个任务不会被执行
-});
-
-// 所有的错误或异常都可以在这里处理
-ti.onError(function (err) {
-  // handle err
-});
-
-ti.run(function () {
-  // 所有任务完成后，该回调函数会被执行一次
-}); // 不要忘记调用run()方法，否则所有任务都不会执行
+ctrl.go(atomArgs); // 这个任务不会被执行了
+ctrl.run();
 ```
 
 ## 并行任务
-Tiny也支持并行的任务。
+tiny支持并行任务
 ```javascript
-var ti = new Tiny();
-ti.parallel(/*类似上述的‘go’方法中定义的任务*/);
-ti.parallel(/*...*/);
-ti.run(function () {
-  // 上述任务会并行执行，并且都执行完毕后，该回调函数会被调用
-});
+var ctrl = new tiny.Controller();
+ctrl.parallel(atomArgs);
+ctrl.parallel(atomArgs);
+ctrl.onFinish(atomArgs); // 当所有的parallel任务执行完后，会执行该任务
+ctrl.run(); // 如果是异步任务的话，上述的parallel任务会被并行执行
 ```
 
 ## While-do or do-while
-Tiny让带异步回调的循环变得简单:
+tiny让循环也变得简单
 ```javascript
-var ti = new Tiny();
+var ctrl = new tiny.Controller();
 var i = 0;
-ti.while(function () { return i < 2; });
-ti.do(fs.readdir, './path', function (files) {
+ctrl.while(function() { return i < 2; });
+ctrl.do(fs.readdir, './path', function(files) {
   i++;
-}); // 像上述的'go'方法一样定义任务
-ti.run(function () {
+}); // ctrl.do(atomArgs), do方法只可以被调用一次
+ctrl.onFinish(function() {
   i.should.equal(2);
 });
+ctrl.run();
 ```
-如果先调用do再调用while方法，则行为会类似于do-while循环。
+如果先调用do方法，则执行效果就会像do-while循环一样
 ```javascript
-var ti = new Tiny();
+var ctrl = new tiny.Controller();
 var i = 0;
-ti.do(fs.readdir, './path', function (files) {
-  i++; // 这个函数至少会执行一次
+ctrl.do(fs.readdir, './path', function(files) {
+  i++; // 这个任务至少会被执行一次
 });
-ti.while(function () { return i < 2; });
-ti.run(function () {
+ctrl.while(function() { return i < 2; });
+ctrl.onFinish(function() {
   i.should.equal(2);
 });
+ctrl.run();
 ```
 
 ## 链式风格
-可以像这样链式调用方法：
+可以链式调用方法:
 ```javascript
-var ti = new Tiny();
-ti.go(/*...*/).go(/*...*/).go(/*...*/).onError(/*...*/).run(/*...*/);
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs).go(atomArgs).go(atomArgs).onError(function(err) {}).onFinish(atomArgs).run();
 ```
 
-## 嵌套的Tiny
-Tiny是可以嵌套的，可以处理更复杂的流程。
+## 嵌套的控制器
+tiny.Controller可以被嵌套！在原子任务中返回一个tiny.Controller即可
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
-  var subti = new Tiny();
-  subti.go(function () {
-    // do something
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
+  console.log(1);
+});
+ctrl.go(function() {
+  console.log(2);
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(atomArgs);
+  subCtrl.go(atomArgs);
+  subCtrl.go(function() {
+    console.log(3);
   });
-  subti.go(/*...*/)
-  return subti; // 在这里不需要也不能使用run()；直接返回即可。
-})
-ti.go(/*...*/);
-ti.go(/*...*/);
-ti.run();
+  return subCtrl; // 返回即可，不要调用它的'run'方法
+});
+ctrl.go(function() {
+  console.log(4);
+});
+ctrl.go(atomArgs);
+ctrl.run(); // console.log 输出顺序: 1, 2, 3, 4
 ```
 
 ## 错误处理
-所有的错误和异常都会在一个错误处理函数中处理，这是不是很简单？在Tiny的任务中，所有抛出的异常都会被捕获。
+您可以在一个地方处理所有错误。tiny.Controller会捕获所有由原子任务抛出的异常。
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
   throw new Error('aa');
 });
-ti.onError(function (err) {
+ctrl.onError(function(err) {
   // err.message will be 'aa'
 });
-ti.run();
+ctrl.run();
 ```
 
-如果是嵌套的Tiny，子层的异常也可以被捕获。
+父控制器可以捕获子控制器的异常。
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
-  var subti = new Tiny();
-  subti.go(function () {
-    throw new Error('subti');
+var ctrl = new tiny.Controller();
+ctrl.go(function() {
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(function() {
+    throw new Error('child error');
   });
-  return subti;
+  return subCtrl;
 });
-ti.onError(function (err) {
-  // err.message should be 'subti'
+ctrl.onError(function(err) {
+  // err.message should be 'child error'
 });
-ti.run();
+ctrl.run();
 ```
-如果子层的Tiny有自己的错误处理函数，则直接调用，异常不再会被父级的Tiny捕获。
+如果子控制器有自己的错误处理，则父控制器不再去捕获：
 ```javascript
-var ti = new Tiny();
-ti.go(function () {
-  var subti = new Tiny();
-  subti.go(function () {
-    throw new Error('subti');
+var ctrl = new tiny.Controller();
+ctrl.go(function () {
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(function () {
+    throw new Error('child error');
   });
-  subti.onError(function (err) {
-    // err.message should be 'subti'
+  subCtrl.onError(function (err) {
+    // err.message should be 'child error'
   });
-  return subti;
+  return subCtrl;
 });
-ti.onError(function (err) {
-  // could not catch error 'subti' here
+ctrl.onError(function (err) {
+  // could not catch error 'child error' here
 });
-ti.run();
+ctrl.run();
 ```
+
+## 新功能
+下一个版本将会添加两个方法以支持数组遍历:
+* forEach
+* map
