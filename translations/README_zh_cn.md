@@ -101,6 +101,28 @@ ctrl.onFinish(function() {
 ctrl.run();
 ```
 
+## each and map
+tiny提供两种数组遍历的方法, each方法中的iter任务会依次执行, map方法中的iter任务会并行执行。
+
+each:
+```javascript
+var arr = ['cat', 'dog', 'sheep'];
+var ctrl = new tiny.Controller();
+ctrl.each(arr).iter(function(item, index) {
+  // item is arr[index]
+  // 这也是一个原子任务，可以返回tiny.Controller对象实例
+});
+ctrl.run();
+```
+
+map:
+```javascript
+var arr = ['cat', 'dog', 'sheep'];
+var ctrl = new tiny.Controller();
+ctrl.map(arr).iter(function(item, index) {});
+ctrl.run();
+```
+
 ## 链式风格
 可以链式调用方法:
 ```javascript
@@ -179,7 +201,5 @@ ctrl.onError(function (err) {
 ctrl.run();
 ```
 
-## 新功能
-下一个版本将会添加两个方法以支持数组遍历:
-* forEach
-* map
+## License
+[MIT](./LICENSE)

@@ -107,6 +107,28 @@ ctrl.onFinish(function() {
 ctrl.run();
 ```
 
+## each and map
+tiny provide two methods for iterate, the each iter task will run one by one, the map iter task will run parallelly.
+
+each:
+```javascript
+var arr = ['cat', 'dog', 'sheep'];
+var ctrl = new tiny.Controller();
+ctrl.each(arr).iter(function(item, index) {
+  // item is arr[index]
+  // this task is also a atom task, you could return a tiny.Controller here
+});
+ctrl.run();
+```
+
+map:
+```javascript
+var arr = ['cat', 'dog', 'sheep'];
+var ctrl = new tiny.Controller();
+ctrl.map(arr).iter(function(item, index) {});
+ctrl.run();
+```
+
 ## Chain style
 You could do this:
 ```javascript
@@ -185,7 +207,5 @@ ctrl.onError(function (err) {
 ctrl.run();
 ```
 
-## Feature
-Next version will add two methods for array:
-* forEach
-* map
+## License
+[MIT](./LICENSE)
