@@ -1,6 +1,7 @@
 # tiny
 
 [![Build Status](https://travis-ci.org/iMumuMua/tiny.svg)](https://travis-ci.org/iMumuMua/tiny)
+[![Coverage Status](https://coveralls.io/repos/iMumuMua/tiny/badge.svg?branch=master)](https://coveralls.io/r/iMumuMua/tiny?branch=master)
 
 tiny makes asynchronous JavaScript be graceful and easy.
 
