@@ -3,26 +3,16 @@ var helper = require('./helper/helper_func.js');
 
 describe('finish', function() {
 
-  it('base finish test', function(done) {
+  it('finish task should run', function(done) {
     var ctrl = new tiny.Controller();
-    var count = 0;
-    ctrl.go(helper.singleAsyncFunc, function() {
-      var subCtrl = new tiny.Controller();
-      subCtrl.go(helper.singleAsyncFunc, function() {
-        count++;
-      });
-      subCtrl.onFinish(function() {
-        count++;
-      });
-      return subCtrl;
-    });
-    ctrl.run(function() {
-      count.should.equal(2);
+    ctrl.go(function() {});
+    ctrl.onFinish(function() {
       done();
     });
+    ctrl.run();
   });
 
-  it('throw err in finish callback function', function(done) {
+  it('should catch exception that throw by finish task', function(done) {
     var ctrl = new tiny.Controller();
     ctrl.go(function() {});
     ctrl.onFinish(function() {
