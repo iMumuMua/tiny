@@ -6,10 +6,8 @@ describe('finish', function() {
   it('base finish test', function(done) {
     var ctrl = new tiny.Controller();
     var count = 0;
-    ctrl.nick = 'hi'
     ctrl.go(helper.singleAsyncFunc, function() {
       var subCtrl = new tiny.Controller();
-      subCtrl.nick = 'he'
       subCtrl.go(helper.singleAsyncFunc, function() {
         count++;
       });
@@ -24,7 +22,7 @@ describe('finish', function() {
     });
   });
 
-  it.skip('throw err in finish callback function', function(done) {
+  it('throw err in finish callback function', function(done) {
     var ctrl = new tiny.Controller();
     ctrl.go(function() {});
     ctrl.onFinish(function() {
