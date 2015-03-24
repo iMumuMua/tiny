@@ -25,6 +25,30 @@ describe('while', function() {
       });
     });
 
+    it('sub controller should work', function(done) {
+      var ctrl = new tiny.Controller();
+      var i = 0;
+      var condOnce = false;
+      ctrl.while(function() {
+        if (!condOnce) {
+          i.should.equal(0);
+          condOnce = true;
+        }
+        return i < 2;
+      });
+      ctrl.do(function() {
+        var subCtrl = new tiny.Controller();
+        subCtrl.go(function() {
+          i++;
+        });
+        return subCtrl;
+      });
+      ctrl.run(function() {
+        i.should.equal(2);
+        done();
+      });
+    });
+
   });
 
   describe('do-while', function() {

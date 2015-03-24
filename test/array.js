@@ -59,14 +59,26 @@ describe('array', function() {
 
   describe('map', function() {
 
-    it('should iterate each item and run task parallely', function(done) {
+    it('should iterate each item', function(done) {
       var arr = ['cat', 'dog', 'sheep'];
       var count = 0;
-      var resData = [];
       var ctrl = new tiny.Controller();
       ctrl.map(arr).iter(function(item, index) {
         arr[index].should.equal(item);
         count++;
+      });
+      ctrl.onFinish(function() {
+        count.should.equal(arr.length);
+        done();
+      });
+      ctrl.run();
+    });
+
+    it('should run task parallely', function(done) {
+      var arr = ['cat', 'dog', 'sheep'];
+      var resData = [];
+      var ctrl = new tiny.Controller();
+      ctrl.map(arr).iter(function(item, index) {
         var subCtrl = new tiny.Controller();
         var delayTime = (arr.length - index) * 15;
         subCtrl.go(helper.asyncTimerFunc, delayTime, function() {
@@ -75,7 +87,6 @@ describe('array', function() {
         return subCtrl;
       });
       ctrl.onFinish(function() {
-        count.should.equal(arr.length);
         resData[0].should.equal(2);
         resData[1].should.equal(1);
         resData[2].should.equal(0);

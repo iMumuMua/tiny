@@ -66,6 +66,15 @@ describe('catch exception', function() {
     ctrl.run();
   });
 
+  it('should use default error handler to console.log', function() {
+    var ctrl = new tiny.Controller();
+    ctrl.go(function() {
+      throw new Error('default error handler');
+    });
+    ctrl.onError();
+    ctrl.run();
+  });
+
   it('should catch exception that throw by sub controller', function(done) {
     var ctrl = new tiny.Controller();
     ctrl.go(function() {
