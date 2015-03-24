@@ -36,55 +36,17 @@ describe('parallel', function() {
     ctrl.run();
   });
 
-  describe('error handle', function() {
-
-    it('should catch exception that throw by task', function(done) {
-      var ctrl = new tiny.Controller();
-      ctrl.parallel(function() {
-        throw new Error('aa');
-      });
-      ctrl.onError(function(err) {
-        err.message.should.equal('aa');
-        done();
-      });
-      ctrl.run();
+  it('should catch exception that throw by task', function(done) {
+    var ctrl = new tiny.Controller();
+    ctrl.parallel(function() {
+      throw new Error('aa');
     });
-
-    it('should catch exception that throw by sub controller', function(done) {
-      var ctrl = new tiny.Controller();
-      ctrl.parallel(function() {
-        var ctrl = new tiny.Controller();
-        ctrl.parallel(function() {
-          throw new Error('sub ctrl');
-        });
-        return ctrl;
-      });
-      ctrl.onError(function(err) {
-        err.message.should.equal('sub ctrl');
-        done();
-      });
-      ctrl.run();
+    ctrl.onError(function(err) {
+      err.message.should.equal('aa');
+      done();
     });
-
-    it('should not catch sub controller exception if the sub controller has inited error handler', function(done) {
-      var ctrl = new tiny.Controller();
-      ctrl.parallel(function() {
-        var ctrl = new tiny.Controller();
-        ctrl.parallel(function() {
-          throw new Error('sub ctrl');
-        });
-        ctrl.onError(function(err) {
-          err.message.should.equal('sub ctrl');
-          done();
-        });
-        return ctrl;
-      });
-      ctrl.onError(function(err) {
-        should(true).be.false;
-      });
-      ctrl.run();
-    });
-
+    ctrl.run();
   });
+
 
 });

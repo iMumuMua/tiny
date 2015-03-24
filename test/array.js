@@ -42,58 +42,17 @@ describe('array', function() {
       ctrl.run();
     });
 
-    describe('error handle', function() {
-
-      it('should catch exception that throw by iter task', function(done) {
-        var arr = ['cat', 'dog', 'sheep'];
-        var ctrl = new tiny.Controller();
-        ctrl.each(arr).iter(function(item, index) {
-          throw new Error(item);
-        });
-        ctrl.onError(function(err) {
-          err.message.should.equal('cat');
-          done();
-        });
-        ctrl.run();
+    it('should catch exception that throw by iter task', function(done) {
+      var arr = ['cat', 'dog', 'sheep'];
+      var ctrl = new tiny.Controller();
+      ctrl.each(arr).iter(function(item, index) {
+        throw new Error(item);
       });
-
-      it('should catch exception that throw by sub controller', function(done) {
-        var arr = ['cat', 'dog', 'sheep'];
-        var ctrl = new tiny.Controller();
-        ctrl.each(arr).iter(function(item, index) {
-          var subCtrl = new tiny.Controller();
-          subCtrl.go(function() {
-            throw new Error(item);
-          });
-          return subCtrl;
-        });
-        ctrl.onError(function(err) {
-          err.message.should.equal('cat');
-          done();
-        });
-        ctrl.run();
+      ctrl.onError(function(err) {
+        err.message.should.equal('cat');
+        done();
       });
-
-      it('should not catch sub controller exception if the sub controller has inited error handler', function(done) {
-        var arr = ['cat', 'dog', 'sheep'];
-        var ctrl = new tiny.Controller();
-        ctrl.each(arr).iter(function(item, index) {
-          var subCtrl = new tiny.Controller();
-          subCtrl.go(function() {
-            throw new Error(item);
-          });
-          subCtrl.onError(function(err) {
-            err.message.should.equal('cat');
-            done();
-          });
-          return subCtrl;
-        });
-        ctrl.onError(function(err) {
-          should(true).be.false;
-        });
-        ctrl.run();
-      });
-
+      ctrl.run();
     });
 
   });
@@ -125,62 +84,17 @@ describe('array', function() {
       ctrl.run();
     });
 
-    describe('error handle', function() {
-
-      it('should catch exception that throw by iter task', function(done) {
-        var arr = ['cat', 'dog', 'sheep'];
-        var ctrl = new tiny.Controller();
-        ctrl.map(arr).iter(function(item, index) {
-          throw new Error(item);
-        });
-        ctrl.onError(function(err) {
-          err.message.should.be.ok;
-          done();
-        });
-        ctrl.run();
+    it('should catch exception that throw by iter task', function(done) {
+      var arr = ['cat', 'dog', 'sheep'];
+      var ctrl = new tiny.Controller();
+      ctrl.map(arr).iter(function(item, index) {
+        throw new Error(item);
       });
-
-      it('should catch exception that throw by sub controller', function(done) {
-        var arr = ['cat', 'dog', 'sheep'];
-        var ctrl = new tiny.Controller();
-        ctrl.map(arr).iter(function(item, index) {
-          var subCtrl = new tiny.Controller();
-          subCtrl.go(function() {
-            throw new Error(item);
-          });
-          return subCtrl;
-        });
-        ctrl.onError(function(err) {
-          err.message.should.be.ok;
-          done();
-        });
-        ctrl.run();
+      ctrl.onError(function(err) {
+        err.message.should.be.ok;
+        done();
       });
-
-      it('should not catch sub controller exception if the sub controller has inited error handler', function(done) {
-        var arr = ['cat', 'dog', 'sheep'];
-        var ctrl = new tiny.Controller();
-        var hasDone = false;
-        ctrl.map(arr).iter(function(item, index) {
-          var subCtrl = new tiny.Controller();
-          subCtrl.go(function() {
-            throw new Error(item);
-          });
-          subCtrl.onError(function(err) {
-            if (!hasDone) {
-              err.message.should.be.ok;
-              hasDone = true;
-              done();
-            }
-          });
-          return subCtrl;
-        });
-        ctrl.onError(function(err) {
-          should(true).be.false;
-        });
-        ctrl.run();
-      });
-
+      ctrl.run();
     });
 
   });
