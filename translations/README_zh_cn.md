@@ -201,5 +201,31 @@ ctrl.onError(function (err) {
 ctrl.run();
 ```
 
-## License
-[MIT](./LICENSE)
+如果希望父控制器也处理错误，可以在子控制器的错误处理方法中返回`tiny.bubble`。
+```javascript
+var arr = ['dog', 'cat', 'sheep', 'monkey'];
+var ctrl = new tiny.Controller();
+ctrl.map(arr).iter(function(item, index) {
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(function() {
+    throw new Error('bubble');
+  });
+  subCtrl.onError(function(err) {
+    err.message.should.equal('bubble');
+    return tiny.bubble;
+  });
+  return subCtrl;
+});
+ctrl.onError(function(err) {
+  err.message.should.equal('bubble');
+});
+ctrl.run();
+```
+
+## onFinish
+每一种类型的任务都有onFinish事件，在任务顺利完成后触发。
+```javascript
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs).go(atomArgs).onFinish(atomArgs).onError(function(err) {}).run();
+```
+注意: 每个控制器的onFinish或onError事件只会触发**一次**.

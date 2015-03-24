@@ -189,7 +189,8 @@ ctrl.onError(function(err) {
 });
 ctrl.run();
 ```
-If the child controller has called method 'onError':
+
+If the child controller has called method 'onError', the parent controller could not catch exception any more.
 ```javascript
 var ctrl = new tiny.Controller();
 ctrl.go(function () {
@@ -207,6 +208,36 @@ ctrl.onError(function (err) {
 });
 ctrl.run();
 ```
+
+If you want to handle the error in both parent and children controllers, just return `tiny.bubble` in child error handler.
+```javascript
+var arr = ['dog', 'cat', 'sheep', 'monkey'];
+var ctrl = new tiny.Controller();
+ctrl.map(arr).iter(function(item, index) {
+  var subCtrl = new tiny.Controller();
+  subCtrl.go(function() {
+    throw new Error('bubble');
+  });
+  subCtrl.onError(function(err) {
+    err.message.should.equal('bubble');
+    return tiny.bubble;
+  });
+  return subCtrl;
+});
+ctrl.onError(function(err) {
+  err.message.should.equal('bubble');
+});
+ctrl.run();
+```
+
+## onFinish
+Every task type has onFinish event when all the task has finished.
+```javascript
+var ctrl = new tiny.Controller();
+ctrl.go(atomArgs).go(atomArgs).onFinish(atomArgs).onError(function(err) {}).run();
+```
+Notice: Each controller onFinish or onError event will be fire **only once**.
+
 
 ## License
 [MIT](./LICENSE)
