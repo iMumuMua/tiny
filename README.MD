@@ -137,6 +137,17 @@ var ctrl = new tiny.Controller();
 ctrl.go(atomArgs).go(atomArgs).go(atomArgs).onError(function(err) {}).onFinish(atomArgs).run();
 ```
 
+## Shotcut functions
+tiny provide shotcut functions for all tasks:
+```javascript
+tiny.go(atomArgs).go(atomArgs).onFinish(atomArgs).onError(function(err) {}).run();
+tiny.parallel(atomArgs).parallel(atomArgs).run();
+tiny.while(cond).do(atomArgs).run();
+tiny.do(atomArgs).while(cond).run();
+tiny.each(arr).iter(atomArgs).run();
+tiny.map(arr).iter(atomArgs).run();
+```
+
 ## Nested controller
 tiny.Controller could be nested! You could return a tiny.Controller in a atom task function.
 ```javascript

@@ -130,6 +130,17 @@ var ctrl = new tiny.Controller();
 ctrl.go(atomArgs).go(atomArgs).go(atomArgs).onError(function(err) {}).onFinish(atomArgs).run();
 ```
 
+## 快捷方法
+tiny为所有类型的任务提供了快捷的调用方法:
+```javascript
+tiny.go(atomArgs).go(atomArgs).onFinish(atomArgs).onError(function(err) {}).run();
+tiny.parallel(atomArgs).parallel(atomArgs).run();
+tiny.while(cond).do(atomArgs).run();
+tiny.do(atomArgs).while(cond).run();
+tiny.each(arr).iter(atomArgs).run();
+tiny.map(arr).iter(atomArgs).run();
+```
+
 ## 嵌套的控制器
 tiny.Controller可以被嵌套！在原子任务中返回一个tiny.Controller即可
 ```javascript
